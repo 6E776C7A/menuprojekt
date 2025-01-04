@@ -30,9 +30,9 @@ def main(file_path):
     return avg_speed
 
 
-file_path = 'pomiar_bez_zaklucen.gpx'
+file_path = 'pomiar_bez_zaklocen.gpx'
 average_speed = main(file_path)
 print(f'Średnia prędkość między punktami: {average_speed*3.6:.2f} km/h')
-file_path = 'pomiar_lekkie_zaklucenia.gpx'
+file_path = 'pomiar_lekkie_zaklocenia.gpx'
 average_speed = main(file_path)
 print(f'Średnia zaklocona prędkość między punktami: {average_speed*3.6:.2f} km/h')

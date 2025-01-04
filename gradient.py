@@ -1,9 +1,7 @@
 import gpxpy
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.colors import Normalize
-from matplotlib.cm import ScalarMappable
 import plotly.graph_objects as go
+
 
 def read_gpx_coordinates(file_name):
     with open(file_name, 'r') as gpx_file:
@@ -17,75 +15,65 @@ def read_gpx_coordinates(file_name):
                     coordinates.append((point.latitude, point.longitude, point.elevation))
     return np.array(coordinates)
 
-def smooth_elevation(coordinates, window_size=5):
-    z = coordinates[:, 2]
-    smoothed_z = np.convolve(z, np.ones(window_size) / window_size, mode='same')
-    coordinates[:, 2] = smoothed_z
 
-    return coordinates
+def exclude_large_gradient_points(coordinates, gradient_threshold):
+    delta_x = np.diff(coordinates[:, 1])
+    delta_y = np.diff(coordinates[:, 0])
+    delta_z = np.diff(coordinates[:, 2])
+    gradients = np.sqrt(delta_x ** 2 + delta_y ** 2 + delta_z ** 2)
 
-def plot_interactive_gradient_matplotlib(coordinates):
+    valid_points = [True]
+    valid_points.extend(gradients < gradient_threshold)
+    valid_points.append(True)
+
+    valid_points = np.array(valid_points)
+    if len(valid_points) != len(coordinates):
+        valid_points = valid_points[:-1]
+
+    return coordinates[valid_points], gradients
+
+
+def plot_gradient_plotly(coordinates, gradients):
     x = coordinates[:, 1]
     y = coordinates[:, 0]
     z = coordinates[:, 2]
-    norm = Normalize(vmin=np.min(z), vmax=np.max(z))
-    cmap = plt.cm.viridis
-    sm = ScalarMappable(norm=norm, cmap=cmap)
-    colors = sm.to_rgba(z)
-    plt.ion()
-    fig = plt.figure(figsize=(10, 7))
-    ax = fig.add_subplot(111, projection='3d')
-    scatter = ax.scatter(x, y, z, c=colors, marker='o')
-    ax.set_title("Interactive 3D Gradient (Smoothed Elevation)")
-    ax.set_xlabel("Longitude")
-    ax.set_ylabel("Latitude")
-    ax.set_zlabel("Elevation (m)")
-    cbar = plt.colorbar(sm, ax=ax, shrink=0.5)
-    cbar.set_label('Elevation (m)')
-    plt.show(block=True)
 
-def plot_interactive_gradient_plotly(coordinates):
-    x = coordinates[:, 1]
-    y = coordinates[:, 0]
-    z = coordinates[:, 2]
-    fig = go.Figure(data=[go.Scatter3d(
-        x=x,
-        y=y,
-        z=z,
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter3d(
+        x=x[1:],  # Skip the first point for gradient calculation
+        y=y[1:],  # Skip the first point for gradient calculation
+        z=z[1:],  # Skip the first point for gradient calculation
         mode='markers',
         marker=dict(
             size=5,
-            color=z,
-            colorscale='Viridis',
-            colorbar=dict(title="Elevation (m)")
-        )
-    )])
+            color=gradients,  # Use the gradient values to color the points
+            colorscale='YlOrRd',  # Color scale from yellow to red
+            colorbar=dict(title="Gradient Strength")
+        ),
+        name='Gradient Plot'
+    ))
 
     fig.update_layout(
-        title="Interactive 3D Gradient (Smoothed Elevation)",
+        title="3D Gradient Plot (Yellow to Red)",
         scene=dict(
             xaxis_title="Longitude",
             yaxis_title="Latitude",
             zaxis_title="Elevation (m)"
         )
     )
+
     fig.show()
 
+
 if __name__ == "__main__":
-    file_name = "pomiar_bez_zaklucen.gpx"
+    file_name = "pomiar_bez_zaklocen.gpx"
     coordinates = read_gpx_coordinates(file_name)
 
     if coordinates.size > 0:
-        coordinates = smooth_elevation(coordinates, window_size=6)
-        print("Select the plotting library:")
-        print("1. Matplotlib (Basic interactivity)")
-        print("2. Plotly (Rich interactivity)")
-        choice = input("Enter 1 or 2: ").strip()
-        if choice == "1":
-            plot_interactive_gradient_matplotlib(coordinates)
-        elif choice == "2":
-            plot_interactive_gradient_plotly(coordinates)
-        else:
-            print("Invalid choice. Please enter 1 or 2.")
+        gradient_threshold = 1
+        coordinates, gradients = exclude_large_gradient_points(coordinates, gradient_threshold)
+
+        plot_gradient_plotly(coordinates, gradients)
     else:
         print("No valid coordinates found in the GPX file.")
