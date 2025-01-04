@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5350a992-f6dd-4c76-a054-378002f70db4" name="Changes" comment="1" />
+    <list default="true" id="5350a992-f6dd-4c76-a054-378002f70db4" name="Changes" comment="1">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/pomiar_bez_zaklucen.gpx" beforeDir="false" afterPath="$PROJECT_DIR$/data/pomiar_bez_zaklucen.gpx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/pomiar_bez_zaklucen_updated.gpx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/pomiar_lekkie_zaklucenia.gpx" beforeDir="false" afterPath="$PROJECT_DIR$/data/pomiar_lekkie_zaklucenia.gpx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/pomiar_lekkie_zaklucenia_updated.gpx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/xd.py" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
