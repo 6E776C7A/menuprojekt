@@ -37,22 +37,22 @@ def plot_interactive_gradient_plotly(coordinates):
     fig.update_layout(
         title="Interaktywny wykres 3D drogi",
         scene=dict(
-            xaxis_title="Longitude",
-            yaxis_title="Latitude",
+            xaxis_title="x (km)",
+            yaxis_title="y (km)",
             zaxis_title="Elevation (m)"
         )
     )
     fig.show()
 
 if __name__ == "__main__":
-    file_name = "pomiar_bez_zaklocen.gpx"
+    file_name = "output.gpx"
     coordinates = read_gpx_coordinates(file_name)
 
     if coordinates.size > 0:
         plot_interactive_gradient_plotly(coordinates)
 
 
-    file_name = "pomiar_lekkie_zaklocenia.gpx"
+    file_name = "output2.gpx"
     coordinates = read_gpx_coordinates(file_name)
 
     if coordinates.size > 0:
