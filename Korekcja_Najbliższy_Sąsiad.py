@@ -3,6 +3,7 @@ import gpxpy.gpx
 import math
 import matplotlib.pyplot as plt
 import matplotlib
+
 matplotlib.use('TkAgg')
 
 
@@ -29,6 +30,8 @@ def correct_gpx(reference_gpx, noisy_gpx, max_distance):
     ref_lat, ref_lon = [], []
     noisy_lat, noisy_lon = [], []
     corrected_lat, corrected_lon = [], []
+
+    total_errors = []  # Lista błędów odległości
 
     for ref_track, noisy_track in zip(ref_gpx.tracks, noisy_gpx.tracks):
         for ref_segment, noisy_segment in zip(ref_track.segments, noisy_track.segments):
@@ -63,8 +66,22 @@ def correct_gpx(reference_gpx, noisy_gpx, max_distance):
                     corrected_lat.append(noisy_point.latitude)
                     corrected_lon.append(noisy_point.longitude)
 
+                # Oblicz błąd dla punktów skorygowanych
+                corrected_distance = haversine(closest_ref_point.latitude, closest_ref_point.longitude,
+                                               corrected_points[-1].latitude, corrected_points[-1].longitude)
+                total_errors.append(corrected_distance)
+
             # Nadpisz punkty w segmencie
             noisy_segment.points = corrected_points
+
+    # Obliczanie średniego, minimalnego i maksymalnego błędu odległości po korekcji
+    mean_error = sum(total_errors) / len(total_errors) if total_errors else 0
+    min_error = min(total_errors) if total_errors else 0
+    max_error = max(total_errors) if total_errors else 0
+
+    print(f"Średni błąd odległości po korekcji: {mean_error} m")
+    print(f"Minimalny błąd odległości po korekcji: {min_error} m")
+    print(f"Maksymalny błąd odległości po korekcji: {max_error} m")
 
     # Rysowanie wykresów
     plt.figure(figsize=(14, 8))
@@ -96,5 +113,5 @@ def correct_gpx(reference_gpx, noisy_gpx, max_distance):
 # Użycie
 reference_gpx = 'data/pomiar_bez_zaklucen.gpx'  # Plik referencyjny
 noisy_gpx = 'data/pomiar_lekkie_zaklucenia.gpx'  # Plik z zakłóceniami
-max_distance = 3  # maksymalna odległość dopuszczalna pomiędzy punktami
+max_distance = 1  # maksymalna odległość dopuszczalna pomiędzy punktami
 correct_gpx(reference_gpx, noisy_gpx, max_distance)
