@@ -4,9 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 def haversine(lat1, lon1, lat2, lon2):
-    """
-    Oblicza odległość między dwoma punktami na podstawie formuły Haversine.
-    """
+
     R = 6371000  # Promień Ziemi w metrach
     phi1 = math.radians(lat1)
     phi2 = math.radians(lat2)
@@ -19,9 +17,7 @@ def haversine(lat1, lon1, lat2, lon2):
     return R * c  # Odległość w metrach
 
 def analyze_gpx(reference_gpx):
-    """
-    Analiza pliku GPX i rysowanie wykresu drogi od czasu.
-    """
+
     with open(reference_gpx, 'r') as ref_file:
         ref_gpx = gpxpy.parse(ref_file)
 
