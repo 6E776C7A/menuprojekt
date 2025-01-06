@@ -37,6 +37,7 @@ def chebyshev_approximation(x, y, z, degree=5):
     return chebyshev_poly
 
 
+
 def plot_approximation(coords, chebyshev_poly):
     latitudes = np.linspace(np.min(coords[:, 0]), np.max(coords[:, 0]), 100)
     longitudes = np.linspace(np.min(coords[:, 1]), np.max(coords[:, 1]), 100)
