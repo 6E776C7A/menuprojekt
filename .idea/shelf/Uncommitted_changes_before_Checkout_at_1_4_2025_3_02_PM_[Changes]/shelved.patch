@@ -1,0 +1,30 @@
+Index: gradient.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import gpxpy\r\nimport numpy as np\r\nimport matplotlib.pyplot as plt\r\nfrom matplotlib.colors import Normalize\r\nfrom matplotlib.cm import ScalarMappable\r\nimport plotly.graph_objects as go\r\n\r\ndef read_gpx_coordinates(file_name):\r\n    with open(file_name, 'r') as gpx_file:\r\n        gpx = gpxpy.parse(gpx_file)\r\n\r\n    coordinates = []\r\n    for track in gpx.tracks:\r\n        for segment in track.segments:\r\n            for point in segment.points:\r\n                if point.elevation is not None:\r\n                    coordinates.append((point.latitude, point.longitude, point.elevation))\r\n    return np.array(coordinates)\r\n\r\ndef smooth_elevation(coordinates, window_size=5):\r\n    z = coordinates[:, 2]\r\n    smoothed_z = np.convolve(z, np.ones(window_size) / window_size, mode='same')\r\n    coordinates[:, 2] = smoothed_z\r\n\r\n    return coordinates\r\n\r\ndef plot_interactive_gradient_matplotlib(coordinates):\r\n    x = coordinates[:, 1]\r\n    y = coordinates[:, 0]\r\n    z = coordinates[:, 2]\r\n    norm = Normalize(vmin=np.min(z), vmax=np.max(z))\r\n    cmap = plt.cm.viridis\r\n    sm = ScalarMappable(norm=norm, cmap=cmap)\r\n    colors = sm.to_rgba(z)\r\n    plt.ion()\r\n    fig = plt.figure(figsize=(10, 7))\r\n    ax = fig.add_subplot(111, projection='3d')\r\n    scatter = ax.scatter(x, y, z, c=colors, marker='o')\r\n    ax.set_title(\"Interactive 3D Gradient (Smoothed Elevation)\")\r\n    ax.set_xlabel(\"Longitude\")\r\n    ax.set_ylabel(\"Latitude\")\r\n    ax.set_zlabel(\"Elevation (m)\")\r\n    cbar = plt.colorbar(sm, ax=ax, shrink=0.5)\r\n    cbar.set_label('Elevation (m)')\r\n    plt.show(block=True)\r\n\r\ndef plot_interactive_gradient_plotly(coordinates):\r\n    x = coordinates[:, 1]\r\n    y = coordinates[:, 0]\r\n    z = coordinates[:, 2]\r\n    fig = go.Figure(data=[go.Scatter3d(\r\n        x=x,\r\n        y=y,\r\n        z=z,\r\n        mode='markers',\r\n        marker=dict(\r\n            size=5,\r\n            color=z,\r\n            colorscale='Viridis',\r\n            colorbar=dict(title=\"Elevation (m)\")\r\n        )\r\n    )])\r\n\r\n    fig.update_layout(\r\n        title=\"Interactive 3D Gradient (Smoothed Elevation)\",\r\n        scene=dict(\r\n            xaxis_title=\"Longitude\",\r\n            yaxis_title=\"Latitude\",\r\n            zaxis_title=\"Elevation (m)\"\r\n        )\r\n    )\r\n    fig.show()\r\n\r\nif __name__ == \"__main__\":\r\n    file_name = \"pomiar_bez_zaklucen.gpx\"\r\n    coordinates = read_gpx_coordinates(file_name)\r\n\r\n    if coordinates.size > 0:\r\n        coordinates = smooth_elevation(coordinates, window_size=6)\r\n        print(\"Select the plotting library:\")\r\n        print(\"1. Matplotlib (Basic interactivity)\")\r\n        print(\"2. Plotly (Rich interactivity)\")\r\n        choice = input(\"Enter 1 or 2: \").strip()\r\n        if choice == \"1\":\r\n            plot_interactive_gradient_matplotlib(coordinates)\r\n        elif choice == \"2\":\r\n            plot_interactive_gradient_plotly(coordinates)\r\n        else:\r\n            print(\"Invalid choice. Please enter 1 or 2.\")\r\n    else:\r\n        print(\"No valid coordinates found in the GPX file.\")\r\n
+===================================================================
+diff --git a/gradient.py b/gradient.py
+--- a/gradient.py	(revision 817e3b308ee856faaf9fb5978b04a0f4de99951b)
++++ b/gradient.py	(date 1735999257355)
+@@ -17,13 +17,6 @@
+                     coordinates.append((point.latitude, point.longitude, point.elevation))
+     return np.array(coordinates)
+ 
+-def smooth_elevation(coordinates, window_size=5):
+-    z = coordinates[:, 2]
+-    smoothed_z = np.convolve(z, np.ones(window_size) / window_size, mode='same')
+-    coordinates[:, 2] = smoothed_z
+-
+-    return coordinates
+-
+ def plot_interactive_gradient_matplotlib(coordinates):
+     x = coordinates[:, 1]
+     y = coordinates[:, 0]
+@@ -76,7 +69,6 @@
+     coordinates = read_gpx_coordinates(file_name)
+ 
+     if coordinates.size > 0:
+-        coordinates = smooth_elevation(coordinates, window_size=6)
+         print("Select the plotting library:")
+         print("1. Matplotlib (Basic interactivity)")
+         print("2. Plotly (Rich interactivity)")
