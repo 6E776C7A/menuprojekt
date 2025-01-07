@@ -1,8 +1,5 @@
 import gpxpy
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.colors import Normalize
-from matplotlib.cm import ScalarMappable
 import plotly.graph_objects as go
 
 def read_gpx_coordinates(file_name):
