@@ -8,7 +8,7 @@ matplotlib.use('TkAgg')
 
 
 def haversine(lat1, lon1, lat2, lon2):
-    R = 6371000  # Promień Ziemi w metrach
+    R = 6371000
     phi1 = math.radians(lat1)
     phi2 = math.radians(lat2)
     delta_phi = math.radians(lat2 - lat1)
@@ -17,7 +17,7 @@ def haversine(lat1, lon1, lat2, lon2):
     a = math.sin(delta_phi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2) ** 2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
-    return R * c  # Odległość w metrach
+    return R * c
 
 
 def correct_gpx(reference_gpx, noisy_gpx, max_distance):
@@ -26,7 +26,6 @@ def correct_gpx(reference_gpx, noisy_gpx, max_distance):
     with open(noisy_gpx, 'r') as noisy_file:
         noisy_gpx = gpxpy.parse(noisy_file)
 
-    # Listy współrzędnych do wykresów
     ref_lat, ref_lon = [], []
     noisy_lat, noisy_lon = [], []
     corrected_lat, corrected_lon = [], []
@@ -83,10 +82,8 @@ def correct_gpx(reference_gpx, noisy_gpx, max_distance):
     print(f"Minimalny błąd odległości po korekcji: {min_error} m")
     print(f"Maksymalny błąd odległości po korekcji: {max_error} m")
 
-    # Rysowanie wykresów
     plt.figure(figsize=(14, 8))
 
-    # Wykres 1: Trasa referencyjna vs zakłócona
     plt.subplot(1, 2, 1)
     plt.plot(ref_lon, ref_lat, label='Trasa referencyjna', color='green')
     plt.plot(noisy_lon, noisy_lat, label='Trasa zakłócona', color='red', linestyle='--')
@@ -96,7 +93,6 @@ def correct_gpx(reference_gpx, noisy_gpx, max_distance):
     plt.legend()
     plt.grid()
 
-    # Wykres 2: Trasa referencyjna vs poprawiona
     plt.subplot(1, 2, 2)
     plt.plot(ref_lon, ref_lat, label='Trasa referencyjna', color='green')
     plt.plot(corrected_lon, corrected_lat, label='Trasa poprawiona', color='blue', linestyle='--')
@@ -110,8 +106,7 @@ def correct_gpx(reference_gpx, noisy_gpx, max_distance):
     plt.show()
 
 
-# Użycie
-reference_gpx = 'data/pomiar_bez_zaklucen.gpx'  # Plik referencyjny
-noisy_gpx = 'data/pomiar_lekkie_zaklucenia.gpx'  # Plik z zakłóceniami
+reference_gpx = 'data/pomiar_bez_zaklucen.gpx'
+noisy_gpx = 'data/pomiar_lekkie_zaklucenia.gpx'
 max_distance = 1  # maksymalna odległość dopuszczalna pomiędzy punktami
 correct_gpx(reference_gpx, noisy_gpx, max_distance)

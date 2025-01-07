@@ -7,12 +7,9 @@ import matplotlib
 matplotlib.use('TkAgg')
 
 
-# Funkcja do odczytu danych z pliku GPX
 def read_gpx(file_path):
     with open(file_path, 'r') as gpx_file:
         gpx = gpxpy.parse(gpx_file)
-
-        # Ekstrakcja punktów trasy
         points = []
         for track in gpx.tracks:
             for segment in track.segments:
@@ -33,7 +30,6 @@ def interpolate_coordinates(latitudes, longitudes, target_length):
     return new_latitudes, new_longitudes
 
 
-# Funkcja do obliczenia RMSE
 def calculate_rmse(predictions, targets):
     return np.sqrt(np.mean((predictions - targets) ** 2))
 
@@ -77,11 +73,9 @@ def monte_carlo_correction(lat_noisy, lon_noisy, lat_true, lon_true, num_iterati
     return lat_best, lon_best
 
 
-# Ścieżka do pliku GPX (użytkownik dostarcza plik)
 reference_gpx_file_path = 'data/pomiar_bez_zaklucen.gpx'
 noisy_gpx_file_path = 'data/pomiar_lekkie_zaklucenia.gpx'
 
-# Odczyt danych z plików GPX
 reference_points = read_gpx(reference_gpx_file_path)
 noisy_points = read_gpx(noisy_gpx_file_path)
 
@@ -106,19 +100,14 @@ rmse_lon_corrected = calculate_rmse(lon_corrected, lon_true)
 print(f"RMSE dla szerokości geograficznej po korekcji: {rmse_lat_corrected}")
 print(f"RMSE dla długości geograficznej po korekcji: {rmse_lon_corrected}")
 
-# Wizualizacja wyników
 plt.figure(figsize=(12, 8))
 
-# Oryginalne dane
 plt.plot(lon_true, lat_true, label='Dane referencyjne (oryginalne)', color='green', alpha=0.7)
 
-# Zakłócone dane
 plt.scatter(lon_noisy, lat_noisy, label='Dane zakłócone', color='red', s=10, alpha=0.5)
 
-# Dane po korekcji Monte Carlo (połączone linią)
 plt.plot(lon_corrected, lat_corrected, label='Dane po korekcji Monte Carlo', color='purple', alpha=0.7)
 
-# Dostosowanie wykresu
 plt.title("Odszumianie danych GPS za pomocą metody Monte Carlo")
 plt.ylabel("Szerokość geograficzna (lat)")
 plt.xlabel("Długość geograficzna (lon)")

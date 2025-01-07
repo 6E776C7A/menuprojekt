@@ -7,12 +7,9 @@ import matplotlib
 matplotlib.use('TkAgg')
 
 
-# Function to read data from a GPX file
 def read_gpx(file_path):
     with open(file_path, 'r') as gpx_file:
         gpx = gpxpy.parse(gpx_file)
-
-        # Extracting track points
         points = []
         for track in gpx.tracks:
             for segment in track.segments:
@@ -21,7 +18,7 @@ def read_gpx(file_path):
         return np.array(points)
 
 
-# Function to interpolate points
+# Interpolacja brakujących punktów potrzebnych do tego aby długośći list sie zgadzały
 def interpolate_coordinates(latitudes, longitudes, target_length):
     current_length = len(latitudes)
     if current_length >= target_length:
@@ -31,12 +28,11 @@ def interpolate_coordinates(latitudes, longitudes, target_length):
     return new_latitudes, new_longitudes
 
 
-# Function to calculate RMSE
+# Obliczanie błedu średniej kwadratowej błędu
 def calculate_rmse(predictions, targets):
     return np.sqrt(np.mean((predictions - targets) ** 2))
 
 
-# Class for linear regression implementation
 class LinearRegression:
     def __init__(self):
         self.weight = None
@@ -60,12 +56,12 @@ class LinearRegression:
         return (X * self.weight) + self.bias
 
 
-# Function to split data into segments
+# Podzielenie danych na segmenty żeby działała regresja
 def segment_data(data, segment_size):
     return [data[i:i + segment_size] for i in range(0, len(data), segment_size)]
 
 
-# Function to perform regression on segments
+# funkcja implementująca regresje na wcześniej stworzonych segmentach
 def segment_regression(lat_noisy, lon_noisy, segment_size):
     lat_segments = segment_data(lat_noisy, segment_size)
     lon_segments = segment_data(lon_noisy, segment_size)
@@ -88,11 +84,9 @@ def segment_regression(lat_noisy, lon_noisy, segment_size):
     return np.array(lat_pred), np.array(lon_pred)
 
 
-# Path to GPX files (user provides files)
 reference_gpx_file_path = 'data/pomiar_bez_zaklucen.gpx'
 noisy_gpx_file_path = 'data/pomiar_lekkie_zaklucenia.gpx'
 
-# Reading GPX data
 reference_points = read_gpx(reference_gpx_file_path)
 noisy_points = read_gpx(noisy_gpx_file_path)
 
@@ -101,26 +95,23 @@ lon_true = reference_points[:, 1]
 lat_noisy = noisy_points[:, 0]
 lon_noisy = noisy_points[:, 1]
 
-# Interpolating missing points
+# interpolacaj brakujących punktów
 if len(lat_true) > len(lat_noisy):
     lat_noisy, lon_noisy = interpolate_coordinates(lat_noisy, lon_noisy, len(lat_true))
 else:
     lat_true, lon_true = interpolate_coordinates(lat_true, lon_true, len(lat_noisy))
 
-# Performing segment regression
+# Regresja na segmentach
 segment_size = 3
 lat_corrected, lon_corrected = segment_regression(lat_noisy, lon_noisy, segment_size)
 
-print(lat_corrected[20], lon_corrected[20], lat_true[20], lon_true[20])
-
-# Calculating RMSE
+# Obliczanie błędu
 rmse_lat_corrected = calculate_rmse(lat_corrected, lat_true)
 rmse_lon_corrected = calculate_rmse(lon_corrected, lon_true)
 
 print(f"RMSE for corrected latitude: {rmse_lat_corrected}")
 print(f"RMSE for corrected longitude: {rmse_lon_corrected}")
 
-# Visualizing results
 plt.figure(figsize=(12, 8))
 
 plt.plot(lon_true, lat_true, label='Reference Data (Original)', color='green', alpha=0.7)
