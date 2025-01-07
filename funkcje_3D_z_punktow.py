@@ -16,26 +16,34 @@ def read_gpx_coordinates(file_name):
 
 #uzywanie wielomianow chebysheva
 def chebyshev_approximation(x, y, z, degree=5):
+    # Skalowanie zmiennych x i y do zakresu [-1, 1], aby dopasować je do dziedziny wielomianów Czebyszewa.
     x_scaled = 2 * (x - np.min(x)) / (np.max(x) - np.min(x)) - 1
     y_scaled = 2 * (y - np.min(y)) / (np.max(y) - np.min(y)) - 1
+    # Inicjalizacja macierzy współczynników o wymiarach (degree + 1) x (degree + 1).
     coeffs = np.zeros((degree + 1, degree + 1))
-    for m in range(degree + 1):
-        for n in range(degree + 1):
-            Tm = np.cos(m * np.arccos(x_scaled))
-            Tn = np.cos(n * np.arccos(y_scaled))
-            coeffs[m, n] = np.sum(z * Tm * Tn) * 4 / len(x)
+    # Obliczanie współczynników wielomianów Czebyszewa.
+    for m in range(degree + 1):  # Iteracja po stopniach m dla x.
+        for n in range(degree + 1):  # Iteracja po stopniach n dla y.
+            # Obliczanie wartości wielomianów Czebyszewa Tm i Tn dla odpowiednich stopni.
+            Tm = np.cos(m * np.arccos(x_scaled))  # Wielomian Czebyszewa m-tego stopnia dla x_scaled.
+            Tn = np.cos(n * np.arccos(y_scaled))  # Wielomian Czebyszewa n-tego stopnia dla y_scaled.
 
+            # Obliczanie współczynnika (iloczyn wagowany wartości z oraz Tm i Tn).
+            coeffs[m, n] = np.sum(z * Tm * Tn) * 4 / len(x)  # Skalowanie współczynnika przez rozmiar danych.
+
+    # Definicja funkcji do wyznaczania przybliżenia w punkcie (x_val, y_val).
     def chebyshev_poly(x_val, y_val):
+        # Skalowanie wartości wejściowych x_val i y_val do zakresu [-1, 1].
         x_scaled_val = 2 * (x_val - np.min(x)) / (np.max(x) - np.min(x)) - 1
         y_scaled_val = 2 * (y_val - np.min(y)) / (np.max(y) - np.min(y)) - 1
         result = 0
+        # Obliczanie wartości wielomianu Czebyszewa w punkcie
         for m in range(degree + 1):
             for n in range(degree + 1):
+                # Dodanie wkładu współczynnika m, n do wyniku.
                 result += coeffs[m, n] * np.cos(m * np.arccos(x_scaled_val)) * np.cos(n * np.arccos(y_scaled_val))
         return result
-
     return chebyshev_poly
-
 
 
 def plot_approximation(coords, chebyshev_poly):
